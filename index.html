@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MDRRMO BASUD - ER GAME</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;text-align:center;background:#FFF7E6}
+#top{background:linear-gradient(180deg,#FF8C00,#FF6A00);padding:8px;border-bottom:3px solid #0A2A7A}
+#top h1{margin:0;font-size:20px;color:white;text-shadow:1px 1px 0 #0A2A7A;line-height:1.1}
+#top h1 span{color:#FFE600}
+#top p{margin:2px 0 0;color:white;font-size:11px;font-weight:bold}
+#hud{display:flex;justify-content:space-between;background:#0A2A7A;color:white;padding:7px 10px;font-weight:900;font-size:12px}
+#hud span{color:#FFC700}
+#stage{padding:10px}
+.card{background:white;border:3px solid #0A2A7A;border-radius:15px;padding:12px;margin:0;text-align:left}
+.card h2{margin:4px 0;text-align:center;color:#FF6A00;font-size:20px}
+.btn{width:100%;background:white;border:2px solid #0A2A7A;border-radius:10px;padding:10px;margin:4px 0;font-size:14px;font-weight:700;text-align:left;line-height:1.35}
+.btn:active{background:#FFE600}
+.btn.correct{background:#6BCB77;color:white}
+.btn.wrong{background:#FF6B6B;color:white}
+.bigBtn{background:linear-gradient(#FFC700,#FF6A00);border:3px solid #0A2A7A;border-radius:15px;padding:13px;font-size:18px;font-weight:900;color:white;width:100%}
+input{padding:10px;border-radius:10px;text-align:center;font-weight:900;width:160px;font-size:16px;border:2px solid #0A2A7A}
+#phone{font-size:60px;animation:ring .5s infinite}
+@keyframes ring{0%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}100%{transform:rotate(-8deg)}}
+#ambulanceAnim{font-size:60px;position:relative;animation:drive 1.8s linear forwards}
+@keyframes drive{0%{left:-60px}100%{left:calc(100% - 60px)}}
+.vital{display:flex;gap:4px}
+.vital div{flex:1;background:#FFF3CD;border:2px solid #FF6A00;border-radius:8px;padding:6px;font-size:11px}
+.vital b{display:block;font-size:12px;color:#0A2A7A}
+#timerBar{height:10px;background:#DDD;border-radius:10px;overflow:hidden;margin:6px 0}
+#timerFill{height:100%;background:#FF4500;width:100%;transition:width 1s linear}
+#feedback{font-weight:900;padding:9px;border-radius:10px;margin:6px 0;display:none;font-size:13px;line-height:1.4}
+.scene{position:relative;width:100%;height:200px;background:linear-gradient(#87CEEB 0 60%, #8B4513 60% 68%, #555 68% 100%);border:3px solid #0A2A7A;border-radius:12px;overflow:hidden;margin:6px 0}
+.sceneLabel{position:absolute;top:5px;left:0;width:100%;background:rgba(0,0,0,.7);color:white;font-size:11px;font-weight:900;padding:3px;z-index:20}
+.patient{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:5}
+.head{width:54px;height:54px;background:#FFDAB9;border:3px solid #333;border-radius:50%;margin:0 auto;position:relative;animation:headShake .8s infinite}
+@keyframes headShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+.eye{position:absolute;top:18px;width:8px;height:8px;background:#000;border-radius:50%;animation:blink 2s infinite}
+.eye.l{left:11px}.eye.r{right:11px}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(0.1)}}
+.mouth{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:18px;height:11px;background:#800000;border-radius:0 0 12px 12px;animation:mouthOpen .8s infinite}
+@keyframes mouthOpen{0%,100%{height:5px}50%{height:12px}}
+.body{width:105px;height:50px;background:#0A2A7A;border-radius:12px;margin:2px auto;position:relative;animation:breathing 1.2s infinite}
+@keyframes breathing{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.12)}}
+.body span{color:white;font-size:11px;font-weight:900;line-height:50px}
+.leg{position:absolute;bottom:0;width:26px;height:50px;background:#333;border-radius:0 0 10px 10px}
+.leg.broken{transform-origin:top center;animation:legShake .6s infinite}
+@keyframes legShake{0%,100%{transform:rotate(0)}50%{transform:rotate(6deg)}}
+.blood{position:absolute;width:13px;height:13px;background:#FF0000;border-radius:50%;animation:bloodDrip 1s infinite}
+@keyframes bloodDrip{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.4) translateY(14px);opacity:0}}
+.painText{position:absolute;top:32px;right:8px;background:#FF1744;color:white;font-weight:900;padding:4px 8px;border-radius:10px;animation:painPop .8s infinite;font-size:12px;z-index:15}
+@keyframes painPop{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.swelling{position:absolute;width:36px;height:36px;background:#FF6B6B;border-radius:50%;animation:swell 2s infinite}
+@keyframes swell{0%{transform:scale(1)}100%{transform:scale(1.35)}}
+.snake{position:absolute;bottom:22px;right:12px;font-size:42px;animation:snakeMove 1.5s infinite}
+@keyframes snakeMove{0%,100%{transform:translateX(0)}50%{transform:translateX(-10px) rotate(-10deg)}}
+.motor{position:absolute;bottom:16px;right:8px;font-size:50px;transform:rotate(-20deg)}
+.smoke{position:absolute;top:28px;left:18px;font-size:26px;animation:smokeUp 1.5s infinite}
+@keyframes smokeUp{0%{transform:translateY(0);opacity:.8}100%{transform:translateY(-18px);opacity:0}}
+.water{position:absolute;bottom:0;left:0;width:100%;height:42px;background:linear-gradient(#4D96FF,#0066CC);animation:wave 1s infinite}
+@keyframes wave{0%,100%{height:42px}50%{height:48px}}
+.heart{position:absolute;top:42px;left:50%;transform:translateX(-50%);font-size:32px;animation:heartBeat .7s infinite}
+@keyframes heartBeat{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.3)}}
+.fire{position:absolute;bottom:18px;right:18px;font-size:50px;animation:fireFlick .4s infinite}
+@keyframes fireFlick{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.firedScene{position:relative;width:100%;height:330px;background:#333;border:3px solid #FF1744;border-radius:12px;overflow:hidden;margin:8px 0}
+.bossChar{position:absolute;bottom:18px;left:8px;text-align:center;animation:bossAngry .5s infinite}
+@keyframes bossAngry{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+.bossHead{width:60px;height:60px;background:#FFCC99;border:3px solid #000;border-radius:50%;margin:0 auto;position:relative}
+.bossMouth{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:22px;height:13px;background:#000;border-radius:12px 12px 0 0;animation:bossShout .4s infinite}
+@keyframes bossShout{0%,100%{height:9px}50%{height:15px}}
+.erChar{position:absolute;bottom:18px;right:8px;text-align:center;animation:erBeg 1s infinite}
+@keyframes erBeg{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-2deg)}}
+.erHead{width:56px;height:56px;background:#FFDAB9;border:3px solid #333;border-radius:50%;margin:0 auto;position:relative}
+.erMouth{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:16px;height:9px;background:#000;border-radius:0 0 12px 12px;animation:erCryMouth .6s infinite}
+@keyframes erCryMouth{0%,100%{height:6px}50%{height:11px}}
+.patientChar{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);text-align:center;animation:cryShake .6s infinite}
+@keyframes cryShake{0%,100%{transform:translateX(-50%) rotate(0)}50%{transform:translateX(-50%) rotate(-2deg)}}
+.tear{position:absolute;top:26px;width:6px;height:11px;background:#4D96FF;border-radius:50%;animation:tearDrop 1s infinite}
+@keyframes tearDrop{0%{transform:translateY(0);opacity:1}100%{transform:translateY(18px);opacity:0}}
+.bossBubble{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:white;border:3px solid #FF1744;border-radius:12px;padding:6px 9px;font-weight:900;font-size:11px;z-index:20;width:94%;line-height:1.3}
+.patientBubble{position:absolute;top:72px;left:50%;transform:translateX(-50%);background:#FFE600;border:3px solid #FF1744;border-radius:12px;padding:6px 9px;font-weight:900;font-size:12px;z-index:20;width:88%;animation:patientShout .6s infinite;line-height:1.3}
+@keyframes patientShout{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.04)}}
+.erBubble{position:absolute;top:132px;left:50%;transform:translateX(-50%);background:#B3E5FC;border:3px solid #0A2A7A;border-radius:12px;padding:7px 9px;font-weight:900;font-size:12px;z-index:20;width:88%;animation:erBegBubble .8s infinite;line-height:1.3}
+@keyframes erBegBubble{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.03)}}
+
+/* ===== SUCCESS SCENE - PROMOTED! ===== */
+.successScene{position:relative;width:100%;height:330px;background:linear-gradient(#87CEEB 0 60%, #6BCB77 60% 100%);border:3px solid #0A2A7A;border-radius:12px;overflow:hidden;margin:8px 0}
+.bossHappy{position:absolute;bottom:18px;left:8px;text-align:center;animation:bossHappyJump .8s infinite}
+@keyframes bossHappyJump{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.bossHappyMouth{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:22px;height:11px;background:#000;border-radius:0 0 12px 12px}
+.patientHappy{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);text-align:center;animation:patientHappyJump .8s infinite}
+@keyframes patientHappyJump{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
+.patientHappyMouth{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:20px;height:11px;background:#000;border-radius:0 0 12px 12px}
+.erHappy{position:absolute;bottom:18px;right:8px;text-align:center;animation:erHappyJump .9s infinite}
+@keyframes erHappyJump{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(2deg)}}
+.money{position:absolute;top:120px;left:38%;font-size:30px;animation:moneyFly 1.2s infinite;z-index:15}
+@keyframes moneyFly{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(60px,30px) rotate(20deg);opacity:.8}}
+.money2{position:absolute;top:140px;left:35%;font-size:24px;animation:moneyFly2 1.4s infinite;z-index:15}
+@keyframes moneyFly2{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(70px,10px) rotate(-20deg);opacity:.8}}
+.bossBubble2{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:white;border:3px solid #0A2A7A;border-radius:12px;padding:6px 9px;font-weight:900;font-size:11px;z-index:20;width:94%;line-height:1.3}
+.patientBubble2{position:absolute;top:72px;left:50%;transform:translateX(-50%);background:#FFE600;border:3px solid #0A2A7A;border-radius:12px;padding:6px 9px;font-weight:900;font-size:12px;z-index:20;width:88%;animation:patientShout .6s infinite;line-height:1.3}
+.erBubble2{position:absolute;top:132px;left:50%;transform:translateX(-50%);background:#B3E5FC;border:3px solid #0A2A7A;border-radius:12px;padding:7px 9px;font-weight:900;font-size:12px;z-index:20;width:88%;animation:erBegBubble .8s infinite;line-height:1.3}
+</style>
+</head>
+<body>
+<div id="top"><h1>MDRRMO BASUD<br><span>🚨 ER RESPONSE GAME</span></h1><p>3 LIVES LANG! MALI = -100, -1 LIFE, PROCEED AGAD!</p></div>
+<div id="hud"><div>📞 <span id="callNum">0</span>/5</div><div>⭐ <span id="score">0</span></div><div>❤️ <span id="livesDisplay">❤️❤️❤️</span></div><div>⏱️ <span id="timerText">30s</span></div></div>
+<div id="stage"></div>
+<script>
+var audioCtx=null; function unlock(){ if(!audioCtx){ try{audioCtx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){} } if(audioCtx&&audioCtx.state=="suspended") audioCtx.resume(); }
+document.addEventListener("click",unlock);
+function beep(f,d,t,v,w){ if(!audioCtx) return; var o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type=t||"triangle"; o.frequency.value=f; var tt=audioCtx.currentTime+(w||0); g.gain.setValueAtTime(v||.25,tt); g.gain.exponentialRampToValueAtTime(.001,tt+d); o.start(tt); o.stop(tt+d); }
+function playRing(){ for(var i=0;i<3;i++){ beep(800,.3,"square",.2,i*.6); } }
+function playSiren(){ for(var i=0;i<3;i++){ beep(700,.4,"sawtooth",.15,i*.8); beep(950,.4,"sawtooth",.15,i*.8+.4); } }
+function playGood(){ [523,659,784].forEach(function(n,i){ beep(n,.3,"triangle",.3,i*.15); }); }
+function playBad(){ beep(200,.5,"sawtooth",.25,0); beep(150,.5,"sawtooth",.25,.2); }
+function playTick(){ beep(1000,.08,"square",.15,0); }
+function playFired(){ [400,300,200,100].forEach(function(n,i){ beep(n,.6,"sawtooth",.3,i*.4); }); }
+function playWin(){ [523,659,784,1046].forEach(function(n,i){ beep(n,.4,"triangle",.3,i*.15); }); }
+
+function getSceneHTML(c){
+  if(c.id=="SNAKE BITE") return '<div class="scene"><div class="sceneLabel">🐍 SNAKE BITE - POBLACION 1</div><div class="painText">AAAH! 😫</div><div class="patient"><div class="head"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div><div class="body"><span>ER - '+erName+'</span></div><div style="position:relative;height:50px"><div class="leg" style="left:20px"></div><div class="leg" style="left:58px;background:#FF6B6B"><div class="swelling" style="bottom:0;left:-5px"></div></div></div></div><div class="snake">🐍</div><div style="position:absolute;bottom:4px;left:10px;background:rgba(255,255,255,.9);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:900">🦶 NAMAMAGA!</div></div>';
+  if(c.id=="VEHICULAR - BALI HITA") return '<div class="scene"><div class="sceneLabel">🏍️ BALI HITA - MAHARLIKA HWY</div><div class="painText">HITA KO! 💥</div><div class="patient"><div class="head"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div><div class="body"><span>🏍️ RIDER</span></div><div style="position:relative;height:55px"><div class="leg broken" style="left:18px;height:60px;transform:rotate(25deg)"><div style="position:absolute;top:20px;left:-8px;background:#FF0000;color:white;font-size:10px;padding:1px 4px;border-radius:5px">BALI!</div><div class="blood" style="top:18px;left:5px"></div></div><div class="leg" style="left:62px"></div></div></div><div class="motor">🏍️💥</div><div style="position:absolute;bottom:4px;left:10px;background:#FF0000;color:white;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:900">🦵 BALI + DUGO!</div></div>';
+  if(c.id=="DROWNING") return '<div class="scene" style="background:linear-gradient(#87CEEB 0 40%, #0066CC 40% 100%)"><div class="sceneLabel">🌊 NALUNOD - SAN FELIPE</div><div class="water"></div><div class="patient" style="bottom:32px"><div class="head" style="animation:none;transform:rotate(15deg)"><div class="eye l" style="animation:none;transform:scaleY(.1)"></div><div class="eye r" style="animation:none;transform:scaleY(.1)"></div><div class="mouth" style="animation:none;height:4px"></div></div><div class="body" style="animation:none;background:#555"><span>😶 WALANG HINGA</span></div></div><div style="position:absolute;top:35px;right:8px;background:#000;color:white;padding:3px 7px;border-radius:8px;font-size:11px;font-weight:900">HINDI HUMIHINGA!</div></div>';
+  if(c.id=="HEART ATTACK") return '<div class="scene"><div class="sceneLabel">❤️ HEART ATTACK - MATNOG</div><div class="heart">❤️</div><div class="painText">DIBDIB KO! 😖</div><div class="patient"><div class="head"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div><div class="body"><span>🤲 HAWAK DIBDIB</span></div><div style="position:relative;height:45px"><div class="leg" style="left:20px"></div><div class="leg" style="left:58px"></div></div></div></div>';
+  if(c.id=="FALL - BUBONG") return '<div class="scene"><div class="sceneLabel">🏠 NAHULOG SA BUBONG - TAISAN</div><div class="painText">LIKOD KO! 😫</div><div class="patient"><div class="head"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div><div class="body" style="background:#FF6A00"><span>⚠️ HUWAG GALAWIN!</span></div><div style="position:relative;height:45px"><div class="leg" style="left:20px;animation:none;opacity:.6"></div><div class="leg" style="left:58px;animation:none;opacity:.6"></div></div></div><div style="position:absolute;bottom:4px;left:10px;background:#FF1744;color:white;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:900">🦴 SPINAL - HINDI MAIGALAW PAA!</div></div>';
+  if(c.id=="BURN") return '<div class="scene"><div class="sceneLabel">🔥 PASO - POBLACION 1</div><div class="smoke">💨</div><div class="fire">🔥</div><div class="painText">MAINIT! 😭</div><div class="patient"><div class="head" style="background:#FF9999"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div><div class="body"><span>🔥 PASO</span></div><div style="position:relative;height:45px"><div class="leg" style="left:20px"></div><div class="leg" style="left:58px;background:#FF6B6B"></div></div></div></div>';
+  return '';
+}
+function getFiredScene(){
+  return '<div class="firedScene">'
+    + '<div class="bossBubble">😡 BOSS: MAG RE-TRAIN KA! BUHAY ANG HAWAK MO TAPOS GANYAN ASSESSMENT MO! YOU\'RE FIRED! 🔥</div>'
+    + '<div class="patientBubble">😭 PASYENTE: KAKASUHAN KITA! DI KA MARUNONG! ⚖️</div>'
+    + '<div class="erBubble">🥺 ER: ARAM MO BOSS, SORRY NA... PATAWAD NA, DAI KO NA UULITON! 😭🙏</div>'
+    + '<div class="bossChar"><div class="bossHead"><div class="eye l"></div><div class="eye r"></div><div class="bossMouth"></div></div><div style="width:75px;height:55px;background:#FF1744;border-radius:10px;color:white;font-size:11px;font-weight:900;line-height:55px">👔 BOSS</div><div style="background:#FF1744;color:white;font-size:11px;font-weight:900;padding:2px;border-radius:8px;margin-top:2px">😡 GALIT!</div></div>'
+    + '<div class="patientChar"><div class="head" style="background:#FFCCCC"><div class="eye l"></div><div class="eye r"></div><div class="mouth" style="animation:none;height:4px"></div><div class="tear" style="left:11px"></div><div class="tear" style="right:11px"></div></div><div style="width:65px;height:50px;background:#999;border-radius:10px;color:white;font-size:11px;font-weight:900;line-height:50px">😭 PASYENTE</div><div style="background:#FF6A00;color:white;font-size:11px;font-weight:900;padding:2px;border-radius:8px;margin-top:2px">⚖️ KAKASUHAN KA!</div></div>'
+    + '<div class="erChar"><div class="erHead"><div class="eye l" style="animation:none;transform:scaleY(.2)"></div><div class="eye r" style="animation:none;transform:scaleY(.2)"></div><div class="erMouth"></div><div class="tear" style="left:11px"></div><div class="tear" style="right:11px;animation-delay:.3s"></div></div><div style="width:75px;height:55px;background:#0A2A7A;border-radius:10px;color:white;font-size:11px;font-weight:900;line-height:55px">🥺 ER</div><div style="background:#0A2A7A;color:white;font-size:11px;font-weight:900;padding:2px;border-radius:8px;margin-top:2px">🙏 NAGMAMAKAAWA!</div></div></div>';
+}
+// ===== SUCCESS SCENE - PROMOTED! =====
+function getSuccessScene(){
+  return '<div class="successScene">'
+    + '<div class="bossBubble2">😊 BOSS: MAGALING ANG GINAWA MO! DAHIL DYAN, PROMOTED KA NA! 🎉</div>'
+    + '<div class="patientBubble2">😊 PASYENTE: SALAMAT ER! ITO PANG-MERYENDA MO! IKAW NAG-LIGTAS SAKIN! 💸</div>'
+    + '<div class="erBubble2">🥺 ER: SALAMAT SIR, ARAY MO PAKAK! 😭🙏</div>'
+    + '<div class="money">💸</div><div class="money2">💵</div>'
+    + '<div class="bossHappy"><div class="bossHead"><div class="eye l" style="animation:none"></div><div class="eye r" style="animation:none"></div><div class="bossHappyMouth"></div></div><div style="width:75px;height:55px;background:#6BCB77;border-radius:10px;color:white;font-size:11px;font-weight:900;line-height:55px">👔 BOSS 👍</div><div style="background:#6BCB77;color:white;font-size:11px;font-weight:900;padding:2px;border-radius:8px;margin-top:2px">😊 PROUD!</div></div>'
+    + '<div class="patientHappy"><div class="head" style="background:#FFDAB9;animation:none"><div class="eye l" style="animation:none"></div><div class="eye r" style="animation:none"></div><div class="patientHappyMouth"></div></div><div style="width:65px;height:50px;background:#FFC700;border-radius:10px;color:#333;font-size:11px;font-weight:900;line-height:50px">😊 PASYENTE</div><div style="background:#FFC700;color:#333;font-size:11px;font-weight:900;padding:2px;border-radius:8px;margin-top:2px">💸 MAY PANG-MERYENDA!</div></div>'
+    + '<div class="erHappy"><div class="erHead"><div class="eye l" style="animation:none"></div><div class="eye r" style="animation:none"></div><div class="erMouth" style="animation:none;height:9px;border-radius:0 0 12px 12px"></div></div><div style="width:75px;height:55px;background:#0A2A7A;border-radius:10px;color:white;font-size:11px;font-weight:900;line-height:55px">😅 ER</div><div style="background:#0A2A7A;color:white;font-size:11px;font-weight:900;padding:2px;border-radius:8px;margin-top:2px">🎉 PROMOTED!</div></div></div>';
+}
+var cases=[
+{
+  id:"VEHICULAR - BALI HITA", icon:"🏍️", caller:"Kuya Jun", loc:"Maharlika Highway, Brgy. Poblacion 2, Basud", story:"Nabangga yung motor sa truck! Yung rider, nabalian ng hita! Nakahandusay, dumudugo, sumisigaw sa sakit! Yung hita nya, baluktot!",
+  vitals:{airway:"Bukas, sumisigaw", breathing:"24/min - Mabilis, masakit", pulse:"115 - Mabilis", bp:"110/70", spo2:"96%", conscious:"GCS 15 - Gising, sumisigaw", wound:"Bali sa kanang hita (femur), deformity, dumudugo, pamamaga, paa nanginginig"},
+  q1:"PRIMARY: Bali hita, deformity, dumudugo, sumisigaw. Ano uunahin mo?",
+  q1Opts:["A. I-straight agad yung hita para bumalik sa normal - hilahin mo para maayos","B. I-assess ABC + i-control yung pagdurugo gamit direct pressure, i-check kung may ibang injury, i-immobilize yung hita ng hindi ginagalaw yung bali","C. Buhatin agad at isakay sa ambulance kahit hindi naka-splint","D. Lagyan agad ng yelo yung bali at hintayin mawala sakit"],
+  q1Ans:1, q1Explain:"TAMA! Hindi mo pwedeng hilahin o i-straight yung bali! Baka maputol ugat at lalong dumugo. ABC + bleeding control + immobilize ng hindi ginagalaw. Yung bali sa femur, pwede magdulot ng malaking blood loss sa loob!",
+  q2:"INTERVENTION: Paano mo i-splint yung bali na hita?",
+  q2Opts:["A. Lagyan ng splint na mahaba - mula kili-kili hanggang paa, i-secure sa itaas at ibaba ng bali, huwag idiin sa mismong bali, i-check pulse sa paa bago at pagkatapos mag-splint","B. Balutan lang ng bandage yung mismong bali ng mahigpit para hindi gumalaw","C. Lagyan ng splint na maiksi lang - yung bali lang yung takpan","D. Huwag na lagyan ng splint, buhatin na lang ng maingat"],
+  q2Ans:0, q2Explain:"TAMA! Sa femur fracture, kailangan long splint - kili-kili hanggang paa, kasi yung buong hita gagalaw. I-check pulse sa paa bago at pagkatapos - kung nawala pulse, masyadong mahigpit splint mo!",
+  q3:"TRANSPORT: Sumisigaw pa rin sa sakit, BP 110/70, pulse 115. Ano transport decision mo?",
+  q3Opts:["A. Dalhin agad sa ospital, i-monitor vitals, i-immobilize ng maayos, huwag bigyan ng gamot na hindi authorized, i-reassure pasyente","B. Bigyan ng painkiller na dala mo kahit walang order para tumigil kaka-sigaw","C. Hintayin muna mawala sakit bago dalhin","D. Dalhin pero patayuin muna para ma-check kung makalakad"],
+  q3Ans:0, q3Explain:"TAMA! Immobilization + reassurance + mabilis na transport ang pain relief mo sa field. Hindi ka pwedeng magbigay ng painkiller ng walang order."
+},
+{
+  id:"SNAKE BITE", icon:"🐍", caller:"Aling Nena", loc:"Purok 3, Brgy. Poblacion 1, Basud", story:"Kinagat ng ahas yung anak ko sa paa habang naglalakad sa palayan! Hindi namin nakita yung ahas, pero 2 butas yung kagat, namamaga na, masakit na masakit!",
+  vitals:{airway:"Bukas, nagsasalita", breathing:"22/min - Mabilis, kinakabahan", pulse:"112 - Mabilis", bp:"130/80", spo2:"98%", conscious:"GCS 15 - Gising, takot, sumisigaw sa sakit", wound:"2 puncture wounds sa kaliwang paa, pamamaga 5cm, walang pagdurugo"},
+  q1:"PRIMARY SURVEY: Ano ang pinaka-critical na i-assess muna? Yung pasyente, gising at nagsasalita, pero namamaga na paa.",
+  q1Opts:["A. I-assess kung anong klaseng ahas at hanapin yung ahas para madala sa ospital","B. I-assess yung ABC - Airway, Breathing, Circulation - at i-check kung may signs ng systemic envenomation (pamamaga na kumakalat, pagdurugo ng gilagid, paglabo ng mata)","C. Hugasan agad yung sugat ng malakas na tubig at sabon para matanggal kamandag","D. Lagyan agad ng ice pack yung paa para hindi kumalat yung kamandag"],
+  q1Ans:1, q1Explain:"TAMA! Kahit gising sya, kailangan mo pa rin i-ABC. Ang pinaka-importante sa snake bite ay kung may systemic signs na - pamamaga na kumakalat, pagdurugo. Yung paghahanap ng ahas, delikado at sayang sa oras.",
+  q2:"INTERVENTION: Paano mo i-immobilize yung paa? Dito nagkakamali karamihan.",
+  q2Opts:["A. Pressure Immobilization Technique - balutan ng elastic bandage mula paa pataas na mahigpit, tapos i-splint - gaya ng sa Australia","B. Immobilize lang gamit splint, keep yung paa sa heart level, huwag galawin, huwag balutan ng mahigpit, alisin relo/sapatos bago mamaga lalo","C. Itaas yung paa above heart level para hindi bumaba yung kamandag sa puso","D. Ibaba yung paa below heart level at lagyan ng tourniquet na maluwag para ma-trap yung kamandag sa paa"],
+  q2Ans:1, q2Explain:"TAMA! Sa Pilipinas, HINDI recommended ang Pressure Immobilization para sa viper/cobra bites - pwede nya i-trap yung venom at lalong masira yung paa. Ang tama: splint lang, heart level.",
+  q3:"TRANSPORT DECISION: Anong ospital at paano mo dadalhin?",
+  q3Opts:["A. Dalhin sa pinakamalapit na clinic, hintayin muna 1 oras kung mawawala pamamaga bago dalhin sa ospital","B. Dalhin agad sa ospital na may anti-venom, i-monitor vitals every 5 mins, markahan yung hangganan ng pamamaga ng ballpen para makita kung kumakalat, huwag painumin ng gamot na hindi prescribed","C. Painumin ng paracetamol at antihistamine bago bumiyahe para hindi sumakit","D. Dalhin sa ospital pero hayaan maglakad yung pasyente papunta sa ambulance para mabilis"],
+  q3Ans:1, q3Explain:"TAMA! Kailangan sa ospital na may anti-venom. Markahan yung pamamaga para makita ng doktor kung gaano kabilis kumakalat. Huwag pagalawing maglakad."
+},
+{
+  id:"DROWNING", icon:"🌊", caller:"Tatay Cardo", loc:"Ilog, Brgy. San Felipe, Basud", story:"Nalunod yung bata, 8 years old! Nahango na namin 5 minutes ago, hindi humihinga, malamig, namumutla, walang pulso na makapa!",
+  vitals:{airway:"May tubig at putik sa bibig", breathing:"0 - HINDI HUMIHINGA", pulse:"Hindi makapa - posibleng wala", bp:"Hindi makuha", spo2:"--", conscious:"GCS 3 - Unconscious, walang response", wound:"Walang sugat, malamig katawan, cyanotic lips"},
+  q1:"PRIMARY: Walang breathing, walang pulso. Ano ang pinaka-critical na desisyon?",
+  q1Opts:["A. Baliktarin yung bata at ipalo yung likod para lumabas tubig sa baga - kasi tubig yung problema","B. Simulan agad CPR - 30 compressions : 2 breaths, i-clear lang yung obvious na bara sa bibig, huwag sayangin oras sa pagpapaalis ng tubig","C. Painitin agad yung bata gamit kumot at hintayin huminga mag-isa","D. Dalhin agad sa ospital na hindi nag-CPR, kasi mas mabilis kung sa ospital na mag-CPR"],
+  q1Ans:1, q1Explain:"TAMA! Sa drowning, hypoxia ang kalaban. Hindi mo kailangan paalisin lahat ng tubig. Ang kailangan: oxygen agad via CPR.",
+  q2:"CPR TECHNIQUE: Bata 8 years old, walang pulso. Ano ang tama?",
+  q2Opts:["A. Adult CPR - 2 kamay, malalim na compression, 30:2","B. 1 kamay lang o 2 kamay depende sa laki ng bata, depth 1/3 ng chest (mga 5cm), 30:2, bigyan ng 5 rescue breaths muna bago compressions kasi drowning - hypoxic arrest","C. Compressions lang, huwag na mag-rescue breaths kasi may tubig","D. 15:2 tulad sa 2-rescuer infant CPR, kahit mag-isa ka lang"],
+  q2Ans:1, q2Explain:"TAMA! Sa drowning, hypoxic arrest sya - walang oxygen. Kaya kailangan ng 5 rescue breaths muna bago compressions.",
+  q3:"AFTER CPR: Bumalik yung pulso pero hindi pa rin humihinga ng maayos, nagsusuka ng tubig. Ano gagawin mo?",
+  q3Opts:["A. Ilagay sa recovery position agad kahit hindi pa stable, para hindi ma-choke sa suka","B. I-maintain airway, i-suctions yung suka, bigyan ng oxygen, i-monitor, i-transport sa ospital na naka-recovery position KUNG humihinga na at may pulso, pero ready mag-CPR ulit","C. Pigilan yung pagsusuka para hindi ma-dehydrate","D. Painumin ng tubig para mapalitan yung tubig na nainom"],
+  q3Ans:1, q3Explain:"TAMA! Recovery position ay para sa humihinga na at may pulso. Pero ready mag-CPR ulit kasi pwede ulit mag-arrest."
+},
+{
+  id:"HEART ATTACK", icon:"❤️", caller:"Ate Lita", loc:"Brgy. Matnog, Basud", story:"Yung asawa ko 58 years old, sumikip dibdib 30 mins na, gumagapang sa kaliwang braso at panga, nahihirapan huminga, namamawis ng malamig, nasusuka! May hypertension sya!",
+  vitals:{airway:"Bukas", breathing:"26/min - Hirap", pulse:"118 - Mabilis, irregular", bp:"160/95 - MATAAS", spo2:"92%", conscious:"GCS 15 - Gising, kinakabahan, namumutla", wound:"Walang sugat, pero clutching chest"},
+  q1:"ASSESSMENT: Paano mo ma-differentiate kung heart attack ba to o hyperacidity / muscle pain lang?",
+  q1Opts:["A. Hyperacidity lang kasi nasusuka - painumin ng antacid","B. Heart attack - kasi 30 mins na, sumikip dibdib na gumagapang sa braso at panga, hirap huminga, malamig na pawis, may hypertension, edad 58 - classic ACS signs, hindi to muscle pain","C. Muscle pain lang kasi kahapon nagbuhat sya ng mabigat","D. Panic attack lang kasi kinakabahan"],
+  q1Ans:1, q1Explain:"TAMA! Classic ACS: 30 mins chest pressure + radiation sa braso/panga + dyspnea + diaphoresis + nausea + risk factors. Treat as heart attack agad.",
+  q2:"INTERVENTION: Ano ang TAMANG posisyon at management?",
+  q2Opts:["A. Pahigain ng flat at patakbuhin sa ospital para mabilis","B. Paupuin ng semi-Fowler (45 degrees), huwag pagalawin, bigyan ng oxygen kung SpO2 <94%, i-monitor vitals, huwag bigyan ng kahit anong gamot na hindi prescribed sa field protocol, i-prepare for CPR kung mag-arrest","C. Painumin ng tubig at pa-exercise para mawala bara","D. Bigyan ng aspirin agad kahit hindi mo alam kung allergic sya at kahit walang order"],
+  q2Ans:1, q2Explain:"TAMA! Semi-Fowler para makahinga, huwag pagalawin para hindi tumaas oxygen demand ng puso. Huwag magbigay gamot ng basta-basta.",
+  q3:"TRANSPORT: Biglang nawalan ng pulso at hindi humihinga habang binubuhat. Ano gagawin mo?",
+  q3Opts:["A. Ituloy yung pagbuhat at sa ospital na mag-CPR","B. Ihinto yung pagbuhat, ilapag sa matigas na surface, simulan agad CPR at i-apply AED kung meron, huwag i-delay CPR para sa transport","C. Hintayin magising mag-isa","D. Bigyan ng precordial thump - suntukin yung dibdib para bumalik pulso"],
+  q3Ans:1, q3Explain:"TAMA! Cardiac arrest = CPR agad, hindi pwedeng i-delay para sa transport."
+},
+{
+  id:"FALL - BUBONG", icon:"🏠", caller:"Kuya Boy", loc:"Brgy. Taisan, Basud", story:"Nahulog yung tatay ko 65 years old sa bubong, mga 3 meters! Masakit daw likod, hindi makagalaw yung paa!",
+  vitals:{airway:"Bukas", breathing:"18/min", pulse:"100", bp:"140/85", spo2:"97%", conscious:"GCS 15 - Gising, masakit", wound:"Masakit mid-back, tenderness sa spine, hindi maigalaw paa, numb daw"},
+  q1:"ASSESSMENT: Ano ang pinaka-kinakabahan ka dito?",
+  q1Opts:["A. Bali sa paa lang kasi hindi maigalaw","B. Spinal cord injury - kasi nahulog from height + masakit likod + hindi maigalaw paa + numbness = red flags for spinal injury, kahit gising sya","C. Nabangga lang yung ulo","D. Nabugbog lang, kaya hindi maigalaw kasi masakit"],
+  q1Ans:1, q1Explain:"TAMA! Fall from height + back pain + paralysis + numbness = spinal injury hanggang mapatunayan hindi.",
+  q2:"INTERVENTION: Paano mo hahawakan yung pasyente?",
+  q2Opts:["A. Buhatin ng 2 tao sa kilikili at paa para mabilis mailipat","B. Huwag pagalawin, manual C-spine stabilization sa leeg, log-roll ng buong katawan ng sabay-sabay ng 3-4 responders, ilagay sa spinal board, i-secure ng straps at head blocks","C. Patayuin para ma-test kung makalakad sya","D. Lagyan lang ng splint sa paa kasi yun yung hindi maigalaw"],
+  q2Ans:1, q2Explain:"TAMA! Spinal precautions: huwag pagalawin, manual stabilization, log-roll buong katawan sabay, spinal board.",
+  q3:"PAIN MANAGEMENT: Sumisigaw sa sakit, GCS 15, BP 140/85. Ano gagawin mo sa sakit nya habang nasa field?",
+  q3Opts:["A. Bigyan ng malakas na painkiller na dala mo kahit walang order","B. I-assess pain scale, i-immobilize ng maayos para mabawasan sakit, i-monitor vitals, i-reassure, huwag magbigay ng gamot na hindi authorized, dalhin agad sa ospital - kasi yung immobilization mismo ang pain relief sa spinal injury","C. Sabihan na tiisin lang at huwag maingay","D. Lagyan ng yelo yung likod para manhid"],
+  q3Ans:1, q3Explain:"TAMA! Sa field, hindi ka pwedeng magbigay ng painkiller ng walang order. Ang pain relief mo ay tamang immobilization + reassurance."
+},
+{
+  id:"BURN", icon:"🔥", caller:"Nanay Fe", loc:"Brgy. Poblacion 1, Basud", story:"Nasunog yung kusina! Napaso yung bata sa braso, namumula at may paltos, umiiyak, umuubo kasi nakalanghap ng usok!",
+  vitals:{airway:"Bukas pero may soot sa bibig, umuubo", breathing:"24/min - Ubo", pulse:"110", bp:"110/70", spo2:"95%", conscious:"GCS 15 - Umiiyak, gising", wound:"Burn sa kanang braso at pisngi, namumula, may paltos, estimate 9% TBSA"},
+  q1:"ASSESSMENT: Ano ang pinaka-delikado dito bukod sa paso sa braso?",
+  q1Opts:["A. Yung paso sa braso lang - yun lang gamutin","B. Airway burn / smoke inhalation - kasi may soot sa bibig, umuubo, nasunog sa loob ng bahay - pwedeng mamaga yung airway at hindi makahinga mamaya kahit okay pa ngayon","C. Yung nasunog na kusina - yun yung unahin","D. Yung paltos - yun yung pinaka-delikado"],
+  q1Ans:1, q1Explain:"TAMA! Sa sunog sa loob ng bahay + soot sa bibig + ubo = smoke inhalation. Ang airway pwedeng mamaga ng biglaan.",
+  q2:"INTERVENTION: Paano mo gagamutin yung burn?",
+  q2Opts:["A. Lagyan ng toothpaste at mantika para hindi dumikit","B. I-cool ng malinis na running water 10-20 mins, huwag lagyan ng yelo diretso, takpan ng sterile non-adherent dressing, huwag puputukin paltos, alisin yung masikip na damit/relo bago mamaga","C. Lagyan ng yelo diretso sa paso para mabilis lumamig","D. Balutan ng mahigpit na bandage para hindi pumasok hangin"],
+  q2Ans:1, q2Explain:"TAMA! Running water lang, hindi yelo, hindi toothpaste, hindi mantika. Huwag puputukin paltos.",
+  q3:"TRANSPORT: Bata, may burn sa mukha, umuubo, SpO2 95%. Ano ang transport decision?",
+  q3Opts:["A. Dalhin sa pinakamalapit na clinic lang, kasi maliit lang naman paso","B. Dalhin agad sa ospital na kaya mag-manage ng burn + airway, i-monitor airway every 5 mins, i-position ng semi-upright kung nahihirapan huminga, huwag takpan mukha ng mahigpit","C. Hintayin muna kung mawawala ubo bago dalhin","D. Dalhin pero patagilid para hindi makita yung paso"],
+  q3Ans:1, q3Explain:"TAMA! Burn sa mukha + smoke inhalation = high risk airway. Kailangan sa ospital na kaya mag-manage ng airway."
+}
+];
+var score=0, callNum=0, lives=3, currentCase=null, usedCases=[], timerInt=null, timeLeft=30, currentStage=1, erName="GENO";
+function updateHUD(){ document.getElementById("callNum").innerHTML=callNum; document.getElementById("score").innerHTML=score; document.getElementById("livesDisplay").innerHTML="❤️".repeat(lives)+(lives==0?"💀":""); document.getElementById("timerText").innerHTML=timeLeft+"s"; }
+function showStage(html){ document.getElementById("stage").innerHTML=html; window.scrollTo(0,0); }
+function startTimer(){
+  clearInterval(timerInt); timeLeft=30; updateHUD();
+  timerInt=setInterval(function(){ timeLeft--; updateHUD(); var f=document.getElementById("timerFill"); if(f) f.style.width=(timeLeft/30*100)+"%"; if(timeLeft<=5) playTick(); if(timeLeft<=0){ clearInterval(timerInt); handleWrong(); } },1000);
+}
+function handleWrong(){
+  lives--; score=Math.max(0,score-100); updateHUD(); playBad();
+  if(lives<=0){ showFired(); return; }
+  var fb=document.getElementById("feedback"); if(fb){ fb.style.display="block"; fb.style.background="#FFD5DC"; fb.innerHTML="⏱️ TIME'S UP! -100, -1 LIFE! Lives: "+lives+"<br>Proceed na!"; }
+  setTimeout(function(){ if(currentStage==1) askQ2(); else if(currentStage==2) askQ3(); else callDoneWithPenalty(); },1800);
+}
+function startScreen(){
+  showStage('<div class="card" style="text-align:center"><div style="font-size:55px">🚨</div><h2>READY KA NA, ER?</h2><p style="font-size:14px">Ikaw ang ER sa <b>MDRRMO Basud</b>.<br>5 calls darating.<br><br><b>✅ Tama = +100<br>❌ Mali = -100, -1 LIFE, Proceed agad!<br>💀 Ubos Life = FIRED!</b></p><p style="font-size:14px">Pangalan mo (ER):</p><input id="erName" value="GENO"><br><br><button class="bigBtn" onclick="startDuty()">📞 MAG-DUTY NA!</button></div>');
+}
+function startDuty(){ erName=document.getElementById("erName").value||"GENO"; nextCall(); }
+function nextCall(){
+  if(lives<=0){ showFired(); return; }
+  if(callNum>=5){ endGame(); return; }
+  var avail=cases.filter(function(c){ return usedCases.indexOf(c.id)===-1; });
+  if(avail.length==0){ avail=cases; usedCases=[]; }
+  currentCase=avail[Math.floor(Math.random()*avail.length)]; usedCases.push(currentCase.id);
+  callNum++; currentStage=1; updateHUD(); playRing();
+  showStage('<div class="card" style="text-align:center"><div id="phone">☎️</div><h2>MAY TUMATAWAG!</h2><p>Tumatawag si <b>'+currentCase.caller+'</b>...</p><button class="bigBtn" onclick="answerCall()">📞 SAGUTIN!</button></div>');
+}
+function answerCall(){
+  unlock(); beep(600,.3,"triangle",.3,0);
+  showStage('<div class="card"><h2>'+currentCase.icon+' '+currentCase.id+'</h2><p><b>📞</b> '+currentCase.caller+'<br><b>📍</b> '+currentCase.loc+'</p><div style="background:#FFF3CD;padding:9px;border-radius:10px;border:2px dashed orange"><i>"'+currentCase.story+'"</i></div><button class="btn" onclick="dispatch()">🚑 I-DISPATCH AGAD! ER: '+erName+'</button><button class="btn" onclick="wrongDispatch()">😴 Mamaya na, magkape muna</button></div>');
+}
+function wrongDispatch(){ lives--; score=Math.max(0,score-100); updateHUD(); playBad(); if(lives<=0){ showFired(); return; } showStage('<div class="card" style="text-align:center"><h2>❌ MALI!</h2><p>Emergency yan! -100, -1 LIFE!<br>Lives: '+("❤️".repeat(lives))+'</p><button class="bigBtn" onclick="dispatch()">🚑 I-DISPATCH NA!</button></div>'); }
+function dispatch(){
+  playSiren();
+  showStage('<div class="card" style="text-align:center"><h2>🚑 DISPATCHED!</h2><p><b>ER:</b> '+erName+' ⛑️<br>Lives: '+("❤️".repeat(lives))+' | Score: '+score+'</p><div style="overflow:hidden;height:80px;position:relative;background:linear-gradient(#87CEEB 0 70%, #333 70%)"><div id="ambulanceAnim">🚑</div></div><p style="font-weight:900">PUPUNTA NA KAYO... WEE-OO!</p><p id="driveText">🚑 Umaalis na...</p><button id="arriveBtn" style="display:none" class="bigBtn" onclick="arriveScene()">📍 NAKARATING NA!</button></div>');
+  setTimeout(function(){ document.getElementById("driveText").innerHTML="🚑 Malapit na..."; },1000);
+  setTimeout(function(){ document.getElementById("driveText").innerHTML="🚑 Nandito na!"; document.getElementById("arriveBtn").style.display="block"; },1800);
+}
+function arriveScene(){
+  showStage('<div class="card"><h2>📋 SCENE</h2><p><b>'+currentCase.icon+' '+currentCase.id+'</b> - '+currentCase.loc+'</p>'+getSceneHTML(currentCase)+'<div class="vital"><div>🫁 AIRWAY<b>'+currentCase.vitals.airway+'</b></div><div>💨 BREATHING<b>'+currentCase.vitals.breathing+'</b></div><div>❤️ PULSE<b>'+currentCase.vitals.pulse+'</b></div></div><div class="vital" style="margin-top:4px"><div>🩸 BP<b>'+currentCase.vitals.bp+'</b></div><div>💙 SpO2<b>'+currentCase.vitals.spo2+'</b></div><div>🧠 <b>'+currentCase.vitals.conscious+'</b></div></div><div style="background:#FFE600;padding:7px;border-radius:8px;margin-top:6px;font-size:13px"><b>🩹</b> '+currentCase.vitals.wound+'</div><p style="text-align:center;font-weight:900">Lives: '+("❤️".repeat(lives))+' | Score: '+score+'</p><button class="bigBtn" onclick="askQ1()">➡️ SIMULAN ASSESSMENT</button></div>');
+}
+function askQ1(){ currentStage=1; showStage('<div class="card"><h2>STAGE 1/3 - ASSESSMENT</h2><p><b>'+currentCase.id+'</b> | Lives: '+("❤️".repeat(lives))+' | Score: '+score+'</p>'+getSceneHTML(currentCase)+'<div id="timerBar"><div id="timerFill"></div></div><p style="font-size:12px">⏱️ 30s lang! Mali = -100, -1 LIFE, Proceed!</p><h3 style="font-size:15px">'+currentCase.q1+'</h3>'+currentCase.q1Opts.map(function(o,i){ return '<button class="btn" onclick="checkQ(1,'+i+',this)">'+o+'</button>'; }).join('')+'<div id="feedback"></div></div>'); startTimer(); }
+function askQ2(){ currentStage=2; showStage('<div class="card"><h2>STAGE 2/3 - INTERVENTION</h2><p><b>'+currentCase.id+'</b> | Lives: '+("❤️".repeat(lives))+' | Score: '+score+'</p>'+getSceneHTML(currentCase)+'<div id="timerBar"><div id="timerFill"></div></div><p style="font-size:12px">⏱️ 30s lang!</p><h3 style="font-size:15px">'+currentCase.q2+'</h3>'+currentCase.q2Opts.map(function(o,i){ return '<button class="btn" onclick="checkQ(2,'+i+',this)">'+o+'</button>'; }).join('')+'<div id="feedback"></div></div>'); startTimer(); }
+function askQ3(){ currentStage=3; showStage('<div class="card"><h2>STAGE 3/3 - TRANSPORT</h2><p><b>'+currentCase.id+'</b> | Lives: '+("❤️".repeat(lives))+' | Score: '+score+'</p>'+getSceneHTML(currentCase)+'<div id="timerBar"><div id="timerFill"></div></div><p style="font-size:12px">⏱️ 30s lang! Last na!</p><h3 style="font-size:15px">'+currentCase.q3+'</h3>'+currentCase.q3Opts.map(function(o,i){ return '<button class="btn" onclick="checkQ(3,'+i+',this)">'+o+'</button>'; }).join('')+'<div id="feedback"></div></div>'); startTimer(); }
+function checkQ(stage,i,btn){
+  clearInterval(timerInt);
+  var ans = stage==1 ? currentCase.q1Ans : stage==2 ? currentCase.q2Ans : currentCase.q3Ans;
+  var explain = stage==1 ? currentCase.q1Explain : stage==2 ? currentCase.q2Explain : currentCase.q3Explain;
+  if(i===ans){
+    playGood(); score+=100; updateHUD(); btn.classList.add("correct");
+    document.getElementById("feedback").style.display="block"; document.getElementById("feedback").style.background="#D1F4D9"; document.getElementById("feedback").innerHTML="✅ TAMA! +100! Score: "+score+"<br>"+explain+"<br>➡️ Proceed...";
+    setTimeout(function(){ if(stage==1) askQ2(); else if(stage==2) askQ3(); else callDone(); },2200);
+  } else {
+    playBad(); lives--; score=Math.max(0,score-100); updateHUD(); btn.classList.add("wrong");
+    document.getElementById("feedback").style.display="block"; document.getElementById("feedback").style.background="#FFD5DC"; document.getElementById("feedback").innerHTML="❌ MALI! -100, -1 LIFE! Lives: "+lives+"<br>Score: "+score+"<br><b>Tama sana:</b> "+explain+"<br>⚠️ Proceed na...";
+    if(lives<=0){ setTimeout(showFired,2200); return; }
+    setTimeout(function(){ if(stage==1) askQ2(); else if(stage==2) askQ3(); else callDoneWithPenalty(); },2400);
+  }
+}
+function callDone(){ showStage('<div class="card" style="text-align:center"><div style="font-size:50px">✅</div><h2>NAILIGTAS MO!</h2><p><b>'+currentCase.id+'</b> - Nadala sa ospital ng ligtas!</p><p>Score: '+score+' | Lives: '+("❤️".repeat(lives))+'</p><button class="bigBtn" onclick="nextCall()">📞 NEXT CALL ➡️</button></div>'); }
+function callDoneWithPenalty(){ showStage('<div class="card" style="text-align:center"><div style="font-size:50px">⚠️</div><h2>NADALA NA, PERO...</h2><p><b>'+currentCase.id+'</b> - Nadala na, pero may mali kang assessment. Lumala pasyente.</p><p>Score: '+score+' | Lives: '+("❤️".repeat(lives))+'</p><button class="bigBtn" onclick="nextCall()">📞 NEXT CALL ➡️</button></div>'); }
+function showFired(){
+  clearInterval(timerInt); playFired();
+  showStage('<div class="card" style="text-align:center;border:4px solid #FF1744"><div style="font-size:45px">💥🚨</div><h2 style="color:#FF1744">YOU\'RE FIRED!</h2>'+getFiredScene()+'<div style="background:#FF1744;color:white;padding:10px;border-radius:10px;font-weight:900;font-size:15px;line-height:1.4;margin:8px 0">MAG RE-TRAIN KA!<br>BUHAY ANG HAWAK MO<br>TAPOS GANYAN ASSESSMENT MO!<br><span style="font-size:20px">YOU\'RE FIRED! 🔥</span></div><div style="background:#FFE600;border:3px solid #FF1744;padding:10px;border-radius:10px;font-weight:900;font-size:15px;line-height:1.4;margin:8px 0">😭 PASYENTE: KAKASUHAN KITA!<br>DI KA MARUNONG! ⚖️</div><div style="background:#B3E5FC;border:3px solid #0A2A7A;padding:10px;border-radius:10px;font-weight:900;font-size:15px;line-height:1.4;margin:8px 0">🥺 ER: ARAM MO BOSS, SORRY NA...<br>PATAWAD NA, DAI KO NA UULITON! 😭🙏</div><p><b>'+erName+'</b>, ubos na 3 lives mo.<br>Final Score: '+score+'</p><button class="bigBtn" onclick="location.reload()" style="background:linear-gradient(#FF1744,#FF6A00)">🔄 MAG RE-TRAIN AT MAG-DUTY ULIT!</button></div>');
+}
+function endGame(){
+  clearInterval(timerInt); playWin();
+  var rank = score>=1300 ? "🏆 BEST RESPONDER NG BASUD!" : score>=900 ? "👍 MAGALING! Pang-team leader ka na!" : score>=500 ? "📚 OKAY PA, REVIEW PA!" : "📚 KAILANGAN MAG-REVIEW!";
+  showStage('<div class="card" style="text-align:center"><div style="font-size:50px">🎉</div><h2>TAPOS NA DUTY MO!</h2>'+getSuccessScene()+'<div style="background:#6BCB77;color:white;padding:10px;border-radius:10px;font-weight:900;font-size:15px;line-height:1.4;margin:8px 0">🎉 PROMOTED KA NA!<br>BILANG REGULAR NA JOB ORDER!<br><span style="font-size:13px">DAGDAG TRABAHO, DATI LANG ANG SWELDO! 😅</span></div><div style="background:#FFE600;border:3px solid #0A2A7A;padding:10px;border-radius:10px;font-weight:900;font-size:14px;line-height:1.4;margin:8px 0">😊 PASYENTE: SALAMAT ER!<br>ITO PANG-MERYENDA MO! 💸</div><div style="background:#B3E5FC;border:3px solid #0A2A7A;padding:10px;border-radius:10px;font-weight:900;font-size:14px;line-height:1.4;margin:8px 0">🥺 ER: SALAMAT SIR, ARAY MO PAKAK! 😭🙏</div><p>Final Score: '+score+' / 1500<br>Lives natira: '+("❤️".repeat(lives))+'<br>Calls: 5/5</p><p style="background:#FFE600;padding:9px;border-radius:10px;font-weight:900">'+rank+'</p><p>Maray na Bagong Taon, '+erName+'!<br>Saludo kami, MDRRMO Basud!</p><button class="bigBtn" onclick="location.reload()">🔄 MAG-DUTY ULIT!</button></div>');
+}
+startScreen();
+</script>
+</body>
+</html>
